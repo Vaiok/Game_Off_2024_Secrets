@@ -30,8 +30,26 @@ const freezeCanvasSize = (canvas: HTMLCanvasElement) => {
     adjustCanvasResolution(canvas);
 };
 
+const drawOpeningScreen = (mainCanvas: CanvasAndContext, selectedOption: OpeningScreenOptions) => {
+    const { canvas, context } = mainCanvas;
+    context.fillStyle = 'black';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.font = `${canvas.height / 20}px sans-serif`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    if (selectedOption === 'New Game') { context.fillStyle = 'red'; }
+    else { context.fillStyle = 'white'; }
+    context.fillText('New Game', canvas.width / 2, canvas.height / 2 - canvas.height / 5);
+    if (selectedOption === 'Load Game') { context.fillStyle = 'red'; }
+    else { context.fillStyle = 'white'; }
+    context.fillText('Load Game', canvas.width / 2, canvas.height / 2);
+    if (selectedOption === 'Exit') { context.fillStyle = 'red'; }
+    else { context.fillStyle = 'white'; }
+    context.fillText('Exit', canvas.width / 2, canvas.height / 2 + canvas.height / 5);
+};
+
 const findSelectedOption = (
-    context: CanvasRenderingContext2D, x: number, y: number, existingOption: [OpeningScreenOptions]
+    context: CanvasRenderingContext2D, x: number, y: number, existingOption: OpeningScreenOptions[]
 ): OpeningScreenOptions => {
     const newGameSize = context.measureText('New Game');
     const loadGameSize = context.measureText('Load Game');
@@ -53,38 +71,56 @@ const findSelectedOption = (
     if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) { return 'Exit'; }
     return existingOption[0];
 };
-const drawOpeningScreen = (mainCanvas: CanvasAndContext, selectedOption: OpeningScreenOptions) => {
-    const { canvas, context } = mainCanvas;
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.font = `${canvas.height / 20}px sans-serif`;
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    if (selectedOption === 'New Game') { context.fillStyle = 'red'; }
-    else { context.fillStyle = 'white'; }
-    context.fillText('New Game', canvas.width / 2, canvas.height / 2 - canvas.height / 5);
-    if (selectedOption === 'Load Game') { context.fillStyle = 'red'; }
-    else { context.fillStyle = 'white'; }
-    context.fillText('Load Game', canvas.width / 2, canvas.height / 2);
-    if (selectedOption === 'Exit') { context.fillStyle = 'red'; }
-    else { context.fillStyle = 'white'; }
-    context.fillText('Exit', canvas.width / 2, canvas.height / 2 + canvas.height / 5);
-};
-const selectOption = (event: MouseEvent, mainCanvas: CanvasAndContext, selectedOption: [OpeningScreenOptions]) => {
+const selectOptionMouse = (event: MouseEvent, mainCanvas: CanvasAndContext, selectedOption: OpeningScreenOptions[]) => {
     const canvasBounds = mainCanvas.canvas.getBoundingClientRect();
     const x = event.clientX - canvasBounds.left / mainCanvas!.canvas.width;
     const y = event.clientY - canvasBounds.top / mainCanvas!.canvas.height;
     selectedOption[0] = findSelectedOption(mainCanvas.context, x, y, selectedOption);
     drawOpeningScreen(mainCanvas, selectedOption[0]);
 };
+const selectOptionKeyboard = (
+    event: KeyboardEvent, mainCanvas: CanvasAndContext, selectedOption: OpeningScreenOptions[], keyDown: boolean[]
+) => {
+    if (!keyDown[0]) {
+        keyDown[0] = true;
+        if (event.key === 'ArrowDown') {
+            if (selectedOption[0] === 'New Game') { selectedOption[0] = 'Load Game'; }
+            else if (selectedOption[0] === 'Load Game') { selectedOption[0] = 'Exit'; }
+            else if (selectedOption[0] === 'Exit') { selectedOption[0] = 'New Game'; }
+        } else if (event.key === 'ArrowUp') {
+            if (selectedOption[0] === 'Exit') { selectedOption[0] = 'Load Game'; }
+            else if (selectedOption[0] === 'Load Game') { selectedOption[0] = 'New Game'; }
+            else if (selectedOption[0] === 'New Game') { selectedOption[0] = 'Exit'; }
+        } else if (event.key === 'Enter') {
+            if (selectedOption[0] === 'New Game') { console.log('New Game'); }
+            else if (selectedOption[0] === 'Load Game') { console.log('Load Game'); }
+            else if (selectedOption[0] === 'Exit') { console.log('Exit'); }
+        }
+        drawOpeningScreen(mainCanvas, selectedOption[0]);
+    }
+};
 
 const runOpeningScreen = (mainCanvas: CanvasAndContext | null, soundContext: AudioContext | null) => {
     mainCanvas = mainCanvas || setupMainCanvas();
     soundContext = soundContext || new AudioContext();
     adjustableCanvasSize(mainCanvas.canvas);
-    let selectedOption: [OpeningScreenOptions] = ['New Game'];
-    mainCanvas.canvas.addEventListener('click', (event) => selectOption(event, mainCanvas, selectedOption));
+    let selectedOption: OpeningScreenOptions[] = ['New Game'];
+    let keyDown = [false];
+    mainCanvas.canvas.addEventListener('click', (event) => selectOptionMouse(event, mainCanvas, selectedOption));
+    window.addEventListener('keydown', (event) => selectOptionKeyboard(event, mainCanvas, selectedOption, keyDown));
+    window.addEventListener('keyup', () => keyDown[0] = false);
+    window.addEventListener('resize', () => drawOpeningScreen(mainCanvas, selectedOption[0]));
     drawOpeningScreen(mainCanvas, selectedOption[0]);
+
+
+    // When starting the game, remove all event listeners and freeze the canvas size
+    /*
+    freezeCanvasSize(mainCanvas.canvas);
+    window.removeEventListener('resize', () => drawOpeningScreen(mainCanvas, selectedOption[0]));
+    mainCanvas.canvas.removeEventListener('click', (event) => selectOptionMouse(event, mainCanvas, selectedOption));
+    window.removeEventListener('keydown', (event) => selectOptionKeyboard(event, mainCanvas, selectedOption, keyDown));
+    window.removeEventListener('keyup', () => keyDown[0] = false);
+    */
 };
 
 runOpeningScreen(null, null);
