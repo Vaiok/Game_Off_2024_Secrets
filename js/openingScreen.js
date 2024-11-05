@@ -1,9 +1,24 @@
 class OpeningScreen {
-    constructor(canvas, sound) {
+    constructor(canvas, sound, beginFunction) {
         this.canvas = canvas;
         this.sound = sound;
+        this.selectedOption = 'New Game';
+        this.keyDown = false;
+        this.beginFunction = beginFunction;
+        this.mouseSelect = this.selectOptionMouse.bind(this);
+        this.keyboardSelect = this.selectOptionKeyboard.bind(this);
+        this.releaseKey = this.keyReleased.bind(this);
+        this.drawScreen = this.drawOpeningScreen.bind(this);
     }
-    drawOpeningScreen(selectedOption) {
+    cleanupAndStart() {
+        this.canvas.freezeCanvasSize();
+        this.canvas.getCanvas().removeEventListener('click', this.mouseSelect);
+        window.removeEventListener('keydown', this.keyboardSelect);
+        window.removeEventListener('keyup', this.releaseKey);
+        window.removeEventListener('resize', this.drawScreen);
+        this.beginFunction();
+    }
+    drawOpeningScreen() {
         const canvas = this.canvas.getCanvas();
         const context = this.canvas.getContext();
         if (!context) {
@@ -14,21 +29,21 @@ class OpeningScreen {
         context.font = `${canvas.height / 20}px sans-serif`;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        if (selectedOption === 'New Game') {
+        if (this.selectedOption === 'New Game') {
             context.fillStyle = 'red';
         }
         else {
             context.fillStyle = 'white';
         }
         context.fillText('New Game', canvas.width / 2, canvas.height / 2 - canvas.height / 5);
-        if (selectedOption === 'Load Game') {
+        if (this.selectedOption === 'Load Game') {
             context.fillStyle = 'red';
         }
         else {
             context.fillStyle = 'white';
         }
         context.fillText('Load Game', canvas.width / 2, canvas.height / 2);
-        if (selectedOption === 'Exit') {
+        if (this.selectedOption === 'Exit') {
             context.fillStyle = 'red';
         }
         else {
@@ -36,7 +51,7 @@ class OpeningScreen {
         }
         context.fillText('Exit', canvas.width / 2, canvas.height / 2 + canvas.height / 5);
     }
-    findSelectedOption(x, y, existingOption) {
+    findSelectedOption(x, y) {
         const context = this.canvas.getContext();
         if (!context) {
             throw new Error('Could not get 2d context from canvas');
@@ -57,17 +72,16 @@ class OpeningScreen {
         const exitTop = context.canvas.height / 2 + context.canvas.height / 5 - exitSize.actualBoundingBoxAscent;
         const exitBottom = exitTop + exitSize.actualBoundingBoxAscent + exitSize.actualBoundingBoxDescent;
         if (x > newGameLeft && x < newGameRight && y > newGameTop && y < newGameBottom) {
-            return 'New Game';
+            this.selectedOption = 'New Game';
         }
         if (x > loadGameLeft && x < loadGameRight && y > loadGameTop && y < loadGameBottom) {
-            return 'Load Game';
+            this.selectedOption = 'Load Game';
         }
         if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) {
-            return 'Exit';
+            this.selectedOption = 'Exit';
         }
-        return existingOption[0];
     }
-    selectOptionMouse(event, selectedOption) {
+    selectOptionMouse(event) {
         const canvas = this.canvas.getCanvas();
         const context = this.canvas.getContext();
         if (!context) {
@@ -76,58 +90,59 @@ class OpeningScreen {
         const canvasBounds = canvas.getBoundingClientRect();
         const x = event.clientX - canvasBounds.left / canvas.width;
         const y = event.clientY - canvasBounds.top / canvas.height;
-        selectedOption[0] = this.findSelectedOption(x, y, selectedOption);
-        this.drawOpeningScreen(selectedOption[0]);
+        this.findSelectedOption(x, y);
+        this.drawOpeningScreen();
     }
-    selectOptionKeyboard(event, selectedOption, keyDown) {
-        if (!keyDown[0]) {
-            keyDown[0] = true;
+    selectOptionKeyboard(event) {
+        if (!this.keyDown) {
+            this.keyDown = true;
             if (event.key === 'ArrowDown') {
-                if (selectedOption[0] === 'New Game') {
-                    selectedOption[0] = 'Load Game';
+                if (this.selectedOption === 'New Game') {
+                    this.selectedOption = 'Load Game';
                 }
-                else if (selectedOption[0] === 'Load Game') {
-                    selectedOption[0] = 'Exit';
+                else if (this.selectedOption === 'Load Game') {
+                    this.selectedOption = 'Exit';
                 }
-                else if (selectedOption[0] === 'Exit') {
-                    selectedOption[0] = 'New Game';
+                else if (this.selectedOption === 'Exit') {
+                    this.selectedOption = 'New Game';
                 }
             }
             else if (event.key === 'ArrowUp') {
-                if (selectedOption[0] === 'Exit') {
-                    selectedOption[0] = 'Load Game';
+                if (this.selectedOption === 'Exit') {
+                    this.selectedOption = 'Load Game';
                 }
-                else if (selectedOption[0] === 'Load Game') {
-                    selectedOption[0] = 'New Game';
+                else if (this.selectedOption === 'Load Game') {
+                    this.selectedOption = 'New Game';
                 }
-                else if (selectedOption[0] === 'New Game') {
-                    selectedOption[0] = 'Exit';
+                else if (this.selectedOption === 'New Game') {
+                    this.selectedOption = 'Exit';
                 }
             }
             else if (event.key === 'Enter') {
-                if (selectedOption[0] === 'New Game') {
+                if (this.selectedOption === 'New Game') {
                     console.log('New Game');
+                    this.cleanupAndStart();
                 }
-                else if (selectedOption[0] === 'Load Game') {
+                else if (this.selectedOption === 'Load Game') {
                     console.log('Load Game');
+                    this.cleanupAndStart();
                 }
-                else if (selectedOption[0] === 'Exit') {
+                else if (this.selectedOption === 'Exit') {
                     console.log('Exit');
+                    window.close();
                 }
             }
-            this.drawOpeningScreen(selectedOption[0]);
+            this.drawOpeningScreen();
         }
     }
+    keyReleased() { this.keyDown = false; }
     runOpeningScreen() {
-        const canvas = this.canvas.getCanvas();
         this.canvas.adjustableCanvasSize();
-        let selectedOption = ['New Game'];
-        let keyDown = [false];
-        canvas.addEventListener('click', (event) => this.selectOptionMouse(event, selectedOption));
-        window.addEventListener('keydown', (event) => this.selectOptionKeyboard(event, selectedOption, keyDown));
-        window.addEventListener('keyup', () => keyDown[0] = false);
-        window.addEventListener('resize', () => this.drawOpeningScreen(selectedOption[0]));
-        this.drawOpeningScreen(selectedOption[0]);
+        this.canvas.getCanvas().addEventListener('click', this.mouseSelect);
+        window.addEventListener('keydown', this.keyboardSelect);
+        window.addEventListener('keyup', this.releaseKey);
+        window.addEventListener('resize', this.drawScreen);
+        this.drawOpeningScreen();
     }
 }
 export { OpeningScreen };
