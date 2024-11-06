@@ -1,9 +1,9 @@
-import { VisibleCanvas } from './canvas.js';
+import { MainCanvas } from './canvas.js';
 
 type OpeningScreenOptions = 'New Game' | 'Load Game' | 'Exit';
 
 class OpeningScreen {
-    private canvas: VisibleCanvas;
+    private canvas: MainCanvas;
     private sound: AudioContext;
     private selectedOption: OpeningScreenOptions;
     private keyDown: boolean;
@@ -13,7 +13,7 @@ class OpeningScreen {
     private releaseKey: () => void;
     private drawScreen: () => void;
 
-    constructor(canvas: VisibleCanvas, sound: AudioContext, beginFunction: () => void) {
+    constructor(canvas: MainCanvas, sound: AudioContext, beginFunction: () => void) {
         this.canvas = canvas;
         this.sound = sound;
         this.selectedOption = 'New Game';
@@ -72,9 +72,13 @@ class OpeningScreen {
         const exitRight = exitLeft + exitSize.width;
         const exitTop = context.canvas.height / 2 + context.canvas.height / 5 - exitSize.actualBoundingBoxAscent;
         const exitBottom = exitTop + exitSize.actualBoundingBoxAscent + exitSize.actualBoundingBoxDescent;
-        if (x > newGameLeft && x < newGameRight && y > newGameTop && y < newGameBottom) { this.selectedOption = 'New Game'; }
-        if (x > loadGameLeft && x < loadGameRight && y > loadGameTop && y < loadGameBottom) { this.selectedOption = 'Load Game'; }
-        if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) { this.selectedOption = 'Exit'; }
+        if (x > newGameLeft && x < newGameRight && y > newGameTop && y < newGameBottom) {
+            this.selectedOption = 'New Game';
+            this.cleanupAndStart();
+        } else if (x > loadGameLeft && x < loadGameRight && y > loadGameTop && y < loadGameBottom) {
+            this.selectedOption = 'Load Game';
+            this.cleanupAndStart();
+        } else if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) { window.close(); }
     }
 
     private selectOptionMouse(event: MouseEvent): void {
@@ -100,21 +104,9 @@ class OpeningScreen {
                 else if (this.selectedOption === 'Load Game') { this.selectedOption = 'New Game'; }
                 else if (this.selectedOption === 'New Game') { this.selectedOption = 'Exit'; }
             } else if (event.key === 'Enter') {
-                if (this.selectedOption === 'New Game') {
-                    console.log('New Game');
-
-                    this.cleanupAndStart();
-                }
-                else if (this.selectedOption === 'Load Game') {
-                    console.log('Load Game');
-                
-                    this.cleanupAndStart();
-                }
-                else if (this.selectedOption === 'Exit') {
-                    console.log('Exit');
-                
-                    window.close();
-                }
+                if (this.selectedOption === 'New Game') { this.cleanupAndStart(); }
+                else if (this.selectedOption === 'Load Game') { this.cleanupAndStart(); }
+                else if (this.selectedOption === 'Exit') { window.close(); }
             }
             this.drawOpeningScreen();
         }

@@ -13,6 +13,11 @@ class VisibleCanvas {
         this.canvas.width = this.canvas.clientWidth;
         this.canvas.height = this.canvas.clientHeight;
     }
+}
+class MainCanvas extends VisibleCanvas {
+    constructor() {
+        super();
+    }
     adjustableCanvasSize() {
         this.canvas.style.width = '100vw';
         this.canvas.style.height = '100vh';
@@ -26,4 +31,4 @@ class VisibleCanvas {
         this.adjustCanvasResolution();
     }
 }
-export { VisibleCanvas };
+export { VisibleCanvas, MainCanvas };

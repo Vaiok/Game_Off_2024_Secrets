@@ -1,6 +1,6 @@
 class VisibleCanvas {
-    private canvas: HTMLCanvasElement;
-    private context: CanvasRenderingContext2D | null;
+    protected canvas: HTMLCanvasElement;
+    protected context: CanvasRenderingContext2D | null;
     constructor() {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d');
@@ -11,9 +11,15 @@ class VisibleCanvas {
     public getCanvas() { return this.canvas; }
     public getContext() { return this.context; }
 
-    private adjustCanvasResolution() {
+    protected adjustCanvasResolution() {
         this.canvas.width = this.canvas.clientWidth;
         this.canvas.height = this.canvas.clientHeight;
+    }
+}
+
+class MainCanvas extends VisibleCanvas {
+    constructor() {
+        super();
     }
 
     public adjustableCanvasSize() {
@@ -31,4 +37,4 @@ class VisibleCanvas {
     }
 }
 
-export { VisibleCanvas };
+export { VisibleCanvas, MainCanvas };

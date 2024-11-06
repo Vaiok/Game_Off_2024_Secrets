@@ -1,7 +1,7 @@
-import { VisibleCanvas } from './canvas.js';
+import { VisibleCanvas, MainCanvas } from './canvas.js';
 import { OpeningScreen } from "./openingScreen.js";
 
-const canvas = new VisibleCanvas();
+const mainCanvas = new MainCanvas();
 const sound = new AudioContext();
-const openingScreen = new OpeningScreen(canvas, sound, () => {});
+const openingScreen = new OpeningScreen(mainCanvas, sound, () => {});
 openingScreen.runOpeningScreen();

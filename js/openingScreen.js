@@ -73,12 +73,14 @@ class OpeningScreen {
         const exitBottom = exitTop + exitSize.actualBoundingBoxAscent + exitSize.actualBoundingBoxDescent;
         if (x > newGameLeft && x < newGameRight && y > newGameTop && y < newGameBottom) {
             this.selectedOption = 'New Game';
+            this.cleanupAndStart();
         }
-        if (x > loadGameLeft && x < loadGameRight && y > loadGameTop && y < loadGameBottom) {
+        else if (x > loadGameLeft && x < loadGameRight && y > loadGameTop && y < loadGameBottom) {
             this.selectedOption = 'Load Game';
+            this.cleanupAndStart();
         }
-        if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) {
-            this.selectedOption = 'Exit';
+        else if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) {
+            window.close();
         }
     }
     selectOptionMouse(event) {
@@ -120,15 +122,12 @@ class OpeningScreen {
             }
             else if (event.key === 'Enter') {
                 if (this.selectedOption === 'New Game') {
-                    console.log('New Game');
                     this.cleanupAndStart();
                 }
                 else if (this.selectedOption === 'Load Game') {
-                    console.log('Load Game');
                     this.cleanupAndStart();
                 }
                 else if (this.selectedOption === 'Exit') {
-                    console.log('Exit');
                     window.close();
                 }
             }
