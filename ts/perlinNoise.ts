@@ -1,8 +1,6 @@
 class PerlinNoise {
     private permutation: number[];
-    constructor(seed: number) {
-        this.permutation = this.generateRandomPermutation(seed);
-    }
+    constructor(seed: number) { this.permutation = this.generateRandomPermutation(seed); }
 
     private generateRandomPermutation(seed: number): number[] {
         const p = new Uint8Array(1024);
@@ -14,18 +12,14 @@ class PerlinNoise {
         return [...p, ...p];
     }
 
-    private fade(t: number): number {
-        return t * t * t * (t * (t * 6 - 15) + 10);
-    }
+    private fade(t: number): number { return t * t * t * (t * (t * 6 - 15) + 10); }
     private grad(hash: number, x: number, y: number, z: number): number {
         const h = hash & 15;
         const u = h < 8 ? x : y;
         const v = h < 4 ? y : h === 12 || h === 14 ? x : z;
         return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
     }
-    private lerp(a: number, b: number, t: number): number {
-        return a + t * (b - a);
-    }
+    private lerp(a: number, b: number, t: number): number { return a + t * (b - a); }
     private noiseLayer(x: number, y: number, z: number): number {
         const p = this.permutation;
         const X = Math.floor(x) & 255;

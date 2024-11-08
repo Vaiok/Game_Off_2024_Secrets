@@ -17,8 +17,7 @@ class OpeningScreen {
 
     private drawOpeningScreen(): void {
         const canvas = this.canvas.getCanvas();
-        const context = this.canvas.getContext();
-        if (!context) { throw new Error('Could not get 2d context from canvas'); }
+        const context = this.canvas.getContext()!;
         const cw = canvas.width;
         const ch = canvas.height;
         context.fillStyle = 'black';
@@ -45,8 +44,7 @@ class OpeningScreen {
     }
     
     private findSelectedOption(x: number, y: number): void {
-        const context = this.canvas.getContext();
-        if (!context) { throw new Error('Could not get 2d context from canvas'); }
+        const context = this.canvas.getContext()!;
         const newGameSize = context.measureText('New Game');
         const loadGameSize = context.measureText('Load Game');
         const exitSize = context.measureText('Exit');
@@ -72,8 +70,6 @@ class OpeningScreen {
     }
     private selectOptionMouse(clientX: number, clientY: number): void {
         const canvas = this.canvas.getCanvas();
-        const context = this.canvas.getContext();
-        if (!context) { throw new Error('Could not get 2d context from canvas'); }
         const canvasBounds = canvas.getBoundingClientRect();
         const x = clientX - canvasBounds.left / canvas.width;
         const y = clientY - canvasBounds.top / canvas.height;

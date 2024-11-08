@@ -14,6 +14,7 @@ class Scene {
         return backgroundData;
     }
     runScene() {
+        this.mainCanvas.getContext().drawImage(this.tileAtlas, 0, 0);
     }
 }
 export { Scene };

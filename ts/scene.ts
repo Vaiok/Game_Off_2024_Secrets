@@ -18,7 +18,7 @@ class Scene {
     }
 
     public runScene(): void {
-        
+        this.mainCanvas.getContext()!.drawImage(this.tileAtlas, 0, 0);
     }
 }
 
