@@ -54,11 +54,13 @@ const gameLoop = (data: ProgramData): void => {
         cancelAnimationFrame(data.stopLoop);
         data.keyboard.removeControls();
         data.mouse.removeControls(data.mainCanvas.getCanvas());
-        if (sceneResult === 'New Game' || sceneResult === 'Load Game') {
-            setupGame(data);
-            data.stopLoop = requestAnimationFrame(() => gameLoop(data));
-            data.keyboard.addControls();
-            data.mouse.addControls(data.mainCanvas.getCanvas());
+        if (data.currentScene === 'openingScreen') {    
+            if (sceneResult === 'New Game' || sceneResult === 'Load Game') {
+                setupGame(data);
+                data.stopLoop = requestAnimationFrame(() => gameLoop(data));
+                data.keyboard.addControls();
+                data.mouse.addControls(data.mainCanvas.getCanvas());
+            }
         }
     }
 };
