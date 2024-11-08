@@ -5,44 +5,43 @@ type OpeningScreenOptions = 'New Game' | 'Load Game' | 'Exit';
 
 class OpeningScreen {
     private selectedOption: OpeningScreenOptions = 'New Game';
-    private stopLoop: number = 0;
+    private chosenOption: OpeningScreenOptions | null = null;
     private drawScreen: () => void;
-
     constructor(
         private canvas: MainCanvas, private sound: AudioContext,
         private keyboard: KeyboardControls, private mouse: MouseControls,
-        private beginFunction: () => void
     ) {
         this.drawScreen = this.drawOpeningScreen.bind(this);
+        this.setupOpeningScreen();
     }
 
     private drawOpeningScreen(): void {
         const canvas = this.canvas.getCanvas();
         const context = this.canvas.getContext();
         if (!context) { throw new Error('Could not get 2d context from canvas'); }
+        const cw = canvas.width;
+        const ch = canvas.height;
         context.fillStyle = 'black';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.font = `${canvas.height / 20}px sans-serif`;
+        context.fillRect(0, 0, cw, ch);
+        context.font = `${ch / 20}px sans-serif`;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        if (this.selectedOption === 'New Game') { context.fillStyle = 'red'; }
-        else { context.fillStyle = 'white'; }
-        context.fillText('New Game', canvas.width / 2, canvas.height / 2 - canvas.height / 5);
-        if (this.selectedOption === 'Load Game') { context.fillStyle = 'red'; }
-        else { context.fillStyle = 'white'; }
-        context.fillText('Load Game', canvas.width / 2, canvas.height / 2);
-        if (this.selectedOption === 'Exit') { context.fillStyle = 'red'; }
-        else { context.fillStyle = 'white'; }
-        context.fillText('Exit', canvas.width / 2, canvas.height / 2 + canvas.height / 5);
+        const menuItems = [
+            {text: 'New Game', y: ch / 2 - ch / 5},
+            {text: 'Load Game', y: ch / 2},
+            {text: 'Exit', y: ch / 2 + ch / 5}
+        ];
+        for (const item of menuItems) {
+            if (this.selectedOption === item.text) { context.fillStyle = 'red'; }
+            else { context.fillStyle = 'white'; }
+            context.fillText(item.text, cw / 2, item.y);
+        }
     }
 
     private cleanupAndStart(): void {
-        cancelAnimationFrame(this.stopLoop);
         this.canvas.freezeCanvasSize();
-        this.keyboard.removeControls();
-        this.mouse.removeControls(this.canvas.getCanvas());
         window.removeEventListener('resize', this.drawScreen);
-        this.beginFunction();
+        this.chosenOption = this.selectedOption;
     }
     
     private findSelectedOption(x: number, y: number): void {
@@ -98,15 +97,12 @@ class OpeningScreen {
         else if (this.selectedOption === 'Exit') { window.close(); }
     }
     
-    private setupOpeningScreen(): void {
+    public setupOpeningScreen(): void {
         this.canvas.adjustableCanvasSize();
-        this.keyboard.addControls();
-        this.mouse.addControls(this.canvas.getCanvas());
         window.addEventListener('resize', this.drawScreen);
     }
 
-    private openingScreenLoop(): void {
-        this.stopLoop = requestAnimationFrame(() => this.openingScreenLoop());
+    public runScene(): OpeningScreenOptions | null {
         if (this.mouse.buttonPressed(0)) {
             const client = this.mouse.getMousePosition();
             this.selectOptionMouse(client.x, client.y);
@@ -124,11 +120,7 @@ class OpeningScreen {
             this.keyboard.discontinueKey('Enter');
         }
         this.drawOpeningScreen();
-    }
-
-    public runOpeningScreen(): void {
-        this.setupOpeningScreen();
-        this.stopLoop = requestAnimationFrame(() => this.openingScreenLoop());
+        return this.chosenOption;
     }
 }
 
