@@ -6,40 +6,18 @@ type OpeningScreenOptions = 'New Game' | 'Load Game' | 'Exit';
 class OpeningScreen {
     private selectedOption: OpeningScreenOptions = 'New Game';
     private chosenOption: OpeningScreenOptions | null = null;
-    private drawScreen: () => void;
+    private drawOpeningScene: () => void;
     constructor(
         private canvas: MainCanvas, private sound: AudioContext,
         private keyboard: KeyboardControls, private mouse: MouseControls,
     ) {
-        this.drawScreen = this.drawOpeningScreen.bind(this);
+        this.drawOpeningScene = this.drawScene.bind(this);
         this.setupOpeningScreen();
-    }
-
-    private drawOpeningScreen(): void {
-        const canvas = this.canvas.getCanvas();
-        const context = this.canvas.getContext()!;
-        const cw = canvas.width;
-        const ch = canvas.height;
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, cw, ch);
-        context.font = `${ch / 20}px sans-serif`;
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        const menuItems = [
-            {text: 'New Game', y: ch / 2 - ch / 5},
-            {text: 'Load Game', y: ch / 2},
-            {text: 'Exit', y: ch / 2 + ch / 5}
-        ];
-        for (const item of menuItems) {
-            if (this.selectedOption === item.text) { context.fillStyle = 'red'; }
-            else { context.fillStyle = 'white'; }
-            context.fillText(item.text, cw / 2, item.y);
-        }
     }
 
     private cleanupAndStart(): void {
         this.canvas.freezeCanvasSize();
-        window.removeEventListener('resize', this.drawScreen);
+        window.removeEventListener('resize', this.drawOpeningScene);
         this.chosenOption = this.selectedOption;
     }
     
@@ -95,11 +73,11 @@ class OpeningScreen {
     
     public setupOpeningScreen(): void {
         this.canvas.adjustableCanvasSize();
-        window.addEventListener('resize', this.drawScreen);
+        window.addEventListener('resize', this.drawOpeningScene);
         this.chosenOption = null;
     }
 
-    public runScene(): OpeningScreenOptions | null {
+    public updateScene(): OpeningScreenOptions | null {
         if (this.mouse.buttonPressed(0)) {
             const client = this.mouse.getMousePosition();
             this.selectOptionMouse(client.x, client.y);
@@ -116,8 +94,29 @@ class OpeningScreen {
             this.selectOption();
             this.keyboard.discontinueKey('Enter');
         }
-        if (!this.chosenOption) { this.drawOpeningScreen(); }
+        
         return this.chosenOption;
+    }
+    public drawScene(): void {
+        const canvas = this.canvas.getCanvas();
+        const context = this.canvas.getContext()!;
+        const cw = canvas.width;
+        const ch = canvas.height;
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, cw, ch);
+        context.font = `${ch / 20}px sans-serif`;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        const menuItems = [
+            {text: 'New Game', y: ch / 2 - ch / 5},
+            {text: 'Load Game', y: ch / 2},
+            {text: 'Exit', y: ch / 2 + ch / 5}
+        ];
+        for (const item of menuItems) {
+            if (this.selectedOption === item.text) { context.fillStyle = 'red'; }
+            else { context.fillStyle = 'white'; }
+            context.fillText(item.text, cw / 2, item.y);
+        }
     }
 }
 

@@ -67,7 +67,7 @@ class PerlinNoise {
             total += this.noiseLayer(
                 x / scale * frequency,
                 y / scale * frequency,
-                i * 10
+                0
             ) * amplitude;
             maxValue += amplitude;
             amplitude *= persistence;

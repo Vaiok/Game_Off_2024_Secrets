@@ -19,13 +19,16 @@ const setupGame = (data) => {
     const atlasDimensions = tileSize * 3 * Math.ceil(Math.sqrt(tileTypes.length));
     const tileAtlas = new OffscreenCanvas(atlasDimensions, atlasDimensions);
     const atlasData = generateTileAtlas(tileAtlas, tileSize, tileTypes);
-    data.scenes['start'] = new Scene(data.mainCanvas, data.sound, data.keyboard, data.mouse, tileAtlas, atlasData, tileSize, 50, 50);
+    data.scenes['start'] = new Scene(data.mainCanvas, data.sound, data.keyboard, data.mouse, tileAtlas, atlasData, tileSize, 40, 20);
     data.currentScene = 'start';
 };
 const gameLoop = (data) => {
     data.stopLoop = requestAnimationFrame(() => gameLoop(data));
-    const sceneResult = data.scenes[data.currentScene].runScene();
-    if (sceneResult) {
+    const sceneResult = data.scenes[data.currentScene].updateScene();
+    if (!sceneResult) {
+        data.scenes[data.currentScene].drawScene();
+    }
+    else {
         cancelAnimationFrame(data.stopLoop);
         data.keyboard.removeControls();
         data.mouse.removeControls(data.mainCanvas.getCanvas());

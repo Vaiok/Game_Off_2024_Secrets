@@ -56,7 +56,7 @@ class PerlinNoise {
         let frequency = 1;
         let maxValue = 0;
         for (let i = 0; i < octaves; i++) {
-            total += this.noiseLayer(x / scale * frequency, y / scale * frequency, i * 10) * amplitude;
+            total += this.noiseLayer(x / scale * frequency, y / scale * frequency, 0) * amplitude;
             maxValue += amplitude;
             amplitude *= persistence;
             frequency *= lacunarity;
