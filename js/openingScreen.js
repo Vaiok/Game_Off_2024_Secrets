@@ -40,22 +40,23 @@ class OpeningScreen {
         this.chosenOption = this.selectedOption;
     }
     findSelectedOption(x, y) {
+        const canvas = this.canvas.getCanvas();
         const context = this.canvas.getContext();
         const newGameSize = context.measureText('New Game');
         const loadGameSize = context.measureText('Load Game');
         const exitSize = context.measureText('Exit');
-        const newGameLeft = (context.canvas.width - newGameSize.width) / 2;
-        const newGameRight = newGameLeft + newGameSize.width;
-        const newGameTop = context.canvas.height / 2 - context.canvas.height / 5 - newGameSize.actualBoundingBoxAscent;
-        const newGameBottom = newGameTop + newGameSize.actualBoundingBoxAscent + newGameSize.actualBoundingBoxDescent;
-        const loadGameLeft = (context.canvas.width - loadGameSize.width) / 2;
-        const loadGameRight = loadGameLeft + loadGameSize.width;
-        const loadGameTop = context.canvas.height / 2 - loadGameSize.actualBoundingBoxAscent;
-        const loadGameBottom = loadGameTop + loadGameSize.actualBoundingBoxAscent + loadGameSize.actualBoundingBoxDescent;
-        const exitLeft = (context.canvas.width - exitSize.width) / 2;
-        const exitRight = exitLeft + exitSize.width;
-        const exitTop = context.canvas.height / 2 + context.canvas.height / 5 - exitSize.actualBoundingBoxAscent;
-        const exitBottom = exitTop + exitSize.actualBoundingBoxAscent + exitSize.actualBoundingBoxDescent;
+        const newGameLeft = (canvas.width - newGameSize.width) / 2;
+        const newGameRight = (canvas.width + newGameSize.width) / 2;
+        const newGameTop = canvas.height / 2 - canvas.height / 5 - newGameSize.actualBoundingBoxAscent;
+        const newGameBottom = canvas.height / 2 - canvas.height / 5 + newGameSize.actualBoundingBoxDescent;
+        const loadGameLeft = (canvas.width - loadGameSize.width) / 2;
+        const loadGameRight = (canvas.width + loadGameSize.width) / 2;
+        const loadGameTop = canvas.height / 2 - loadGameSize.actualBoundingBoxAscent;
+        const loadGameBottom = canvas.height / 2 + loadGameSize.actualBoundingBoxDescent;
+        const exitLeft = (canvas.width - exitSize.width) / 2;
+        const exitRight = (canvas.width + exitSize.width) / 2;
+        const exitTop = canvas.height / 2 + canvas.height / 5 - exitSize.actualBoundingBoxAscent;
+        const exitBottom = canvas.height / 2 + canvas.height / 5 + exitSize.actualBoundingBoxDescent;
         if (x > newGameLeft && x < newGameRight && y > newGameTop && y < newGameBottom) {
             this.selectedOption = 'New Game';
             this.cleanupAndStart();
@@ -74,7 +75,6 @@ class OpeningScreen {
         const x = clientX - canvasBounds.left / canvas.width;
         const y = clientY - canvasBounds.top / canvas.height;
         this.findSelectedOption(x, y);
-        this.drawOpeningScreen();
     }
     moveUp() {
         if (this.selectedOption === 'Exit') {
@@ -112,6 +112,7 @@ class OpeningScreen {
     setupOpeningScreen() {
         this.canvas.adjustableCanvasSize();
         window.addEventListener('resize', this.drawScreen);
+        this.chosenOption = null;
     }
     runScene() {
         if (this.mouse.buttonPressed(0)) {
@@ -130,7 +131,9 @@ class OpeningScreen {
             this.selectOption();
             this.keyboard.discontinueKey('Enter');
         }
-        this.drawOpeningScreen();
+        if (!this.chosenOption) {
+            this.drawOpeningScreen();
+        }
         return this.chosenOption;
     }
 }

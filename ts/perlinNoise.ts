@@ -1,14 +1,13 @@
+import { XorShift, LCG } from "./seedAlgorithms.js";
+
 class PerlinNoise {
     private permutation: number[];
     constructor(seed: number) { this.permutation = this.generateRandomPermutation(seed); }
 
     private generateRandomPermutation(seed: number): number[] {
+        const xorShift = new XorShift(seed);
         const p = new Uint8Array(1024);
-        for (let i = 0; i < 1024; i++) p[i] = i;
-        for (let i = 1023; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [p[i], p[j]] = [p[j], p[i]];
-        }
+        for (let i = 0; i < 1024; i++) { p[i] = xorShift.next(); }
         return [...p, ...p];
     }
 

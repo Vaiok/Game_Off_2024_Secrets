@@ -77,8 +77,6 @@ const gameLoop = (data: ProgramData): void => {
         data.keyboard.removeControls();
         data.mouse.removeControls(data.mainCanvas.getCanvas());
         if (data.currentScene === 'openingScreen') {
-            const canvas = data.mainCanvas.getCanvas();
-            data.mainCanvas.getContext()!.clearRect(0, 0, canvas.width, canvas.height);
             if (sceneResult === 'New Game' || sceneResult === 'Load Game') {
                 setupGame(data);
                 data.stopLoop = requestAnimationFrame(() => gameLoop(data));
