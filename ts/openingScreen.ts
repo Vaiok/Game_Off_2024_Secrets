@@ -47,13 +47,6 @@ class OpeningScreen {
             this.cleanupAndStart();
         } else if (x > exitLeft && x < exitRight && y > exitTop && y < exitBottom) { window.close(); }
     }
-    private selectOptionMouse(clientX: number, clientY: number): void {
-        const canvas = this.canvas.getCanvas();
-        const canvasBounds = canvas.getBoundingClientRect();
-        const x = clientX - canvasBounds.left / canvas.width;
-        const y = clientY - canvasBounds.top / canvas.height;
-        this.findSelectedOption(x, y);
-    }
 
     private moveUp(): void {
         if (this.selectedOption === 'Exit') { this.selectedOption = 'Load Game'; }
@@ -80,7 +73,7 @@ class OpeningScreen {
     public updateScene(): OpeningScreenOptions | null {
         if (this.mouse.buttonPressed(0)) {
             const client = this.mouse.getMousePosition();
-            this.selectOptionMouse(client.x, client.y);
+            this.findSelectedOption(client.x, client.y);
         }
         if (this.keyboard.keyPressed('ArrowDown')) {
             this.moveDown();
@@ -94,7 +87,6 @@ class OpeningScreen {
             this.selectOption();
             this.keyboard.discontinueKey('Enter');
         }
-        
         return this.chosenOption;
     }
     public drawScene(): void {

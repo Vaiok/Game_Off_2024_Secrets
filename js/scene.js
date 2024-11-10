@@ -10,7 +10,6 @@ class Scene {
         this.atlasData = atlasData;
         this.tileSize = tileSize;
         this.backgroundData = [];
-        const canvas = this.mainCanvas.getCanvas();
         const target = { x: mapWidth * this.tileSize / 2, y: mapHeight * this.tileSize / 2 };
         const cameraWidth = tileViewRange * this.tileSize;
         const cameraHeight = tileViewRange * this.tileSize;

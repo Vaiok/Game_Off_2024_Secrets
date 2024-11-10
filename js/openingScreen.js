@@ -44,13 +44,6 @@ class OpeningScreen {
             window.close();
         }
     }
-    selectOptionMouse(clientX, clientY) {
-        const canvas = this.canvas.getCanvas();
-        const canvasBounds = canvas.getBoundingClientRect();
-        const x = clientX - canvasBounds.left / canvas.width;
-        const y = clientY - canvasBounds.top / canvas.height;
-        this.findSelectedOption(x, y);
-    }
     moveUp() {
         if (this.selectedOption === 'Exit') {
             this.selectedOption = 'Load Game';
@@ -92,7 +85,7 @@ class OpeningScreen {
     updateScene() {
         if (this.mouse.buttonPressed(0)) {
             const client = this.mouse.getMousePosition();
-            this.selectOptionMouse(client.x, client.y);
+            this.findSelectedOption(client.x, client.y);
         }
         if (this.keyboard.keyPressed('ArrowDown')) {
             this.moveDown();

@@ -2,7 +2,7 @@ import { MainCanvas } from "./canvas.js";
 import { KeyboardControls, MouseControls } from "./controls.js";
 import { AtlasData } from "./tileAtlas.js";
 import { PerlinNoise } from "./perlinNoise.js";
-import { Camera, Viewport } from "./camera.js";
+import { Camera } from "./camera.js";
 
 class Scene {
     private camera: Camera;
@@ -13,7 +13,6 @@ class Scene {
         private tileAtlas: OffscreenCanvas, private atlasData: AtlasData, private tileSize: number,
         mapWidth: number, mapHeight: number, tileViewRange: number
     ) {
-        const canvas = this.mainCanvas.getCanvas();
         const target = { x: mapWidth * this.tileSize / 2, y: mapHeight * this.tileSize / 2 };
         const cameraWidth = tileViewRange * this.tileSize;
         const cameraHeight = tileViewRange * this.tileSize;
@@ -51,7 +50,6 @@ class Scene {
         return null;
     }
 
-    // Work on
     public drawScene(): void {
         const canvas = this.mainCanvas.getCanvas();
         const context = this.mainCanvas.getContext()!;
@@ -84,8 +82,6 @@ class Scene {
             }
         }
     }
-    // // Work on
-
 }
 
 export { Scene };

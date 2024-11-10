@@ -4,8 +4,6 @@ import { VisibleCanvas } from './canvas.js';
 type Tile = 'grass' | 'water' | 'mountain';
 type AtlasData = { [key: string]: Position2D };
 
-
-
 const getTileSize = (canvas: VisibleCanvas, tileViewRange: number): number => {
     const canvasWidth = canvas.getCanvas().width;
     const canvasHeight = canvas.getCanvas().height;
