@@ -14,12 +14,14 @@ const setupProgram = () => {
     return { mainCanvas, sound, keyboard, mouse, scenes, currentScene, stopLoop: 0 };
 };
 const setupGame = (data) => {
-    const tileSize = getTileSize(data.mainCanvas);
+    const mapSize = { width: 200, height: 200 };
+    const tileViewRange = 20;
+    const tileSize = getTileSize(data.mainCanvas, tileViewRange);
     const tileTypes = ['grass', 'water', 'mountain'];
     const atlasDimensions = tileSize * 3 * Math.ceil(Math.sqrt(tileTypes.length));
     const tileAtlas = new OffscreenCanvas(atlasDimensions, atlasDimensions);
     const atlasData = generateTileAtlas(tileAtlas, tileSize, tileTypes);
-    data.scenes['start'] = new Scene(data.mainCanvas, data.sound, data.keyboard, data.mouse, tileAtlas, atlasData, tileSize, 40, 20);
+    data.scenes['start'] = new Scene(data.mainCanvas, data.sound, data.keyboard, data.mouse, tileAtlas, atlasData, tileSize, mapSize.width, mapSize.height, tileViewRange);
     data.currentScene = 'start';
 };
 const gameLoop = (data) => {

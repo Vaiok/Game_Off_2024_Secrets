@@ -1,7 +1,7 @@
-const getTileSize = (canvas) => {
+const getTileSize = (canvas, tileViewRange) => {
     const canvasWidth = canvas.getCanvas().width;
     const canvasHeight = canvas.getCanvas().height;
-    return (canvasHeight <= canvasWidth) ? Math.floor(canvasHeight / 20) : Math.floor(canvasWidth / 20);
+    return (canvasHeight <= canvasWidth) ? Math.floor(canvasHeight / tileViewRange) : Math.floor(canvasWidth / tileViewRange);
 };
 const generateTileAtlas = (tileAtlas, tileSize, tileTypes) => {
     const atlasData = {};

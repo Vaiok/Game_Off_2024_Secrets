@@ -1,17 +1,15 @@
+import { Position2D } from './transformTypes.js';
 import { VisibleCanvas } from './canvas.js';
 
 type Tile = 'grass' | 'water' | 'mountain';
 type AtlasData = { [key: string]: Position2D };
 
-interface Position2D {
-    x: number;
-    y: number;
-}
 
-const getTileSize = (canvas: VisibleCanvas): number => {
+
+const getTileSize = (canvas: VisibleCanvas, tileViewRange: number): number => {
     const canvasWidth = canvas.getCanvas().width;
     const canvasHeight = canvas.getCanvas().height;
-    return (canvasHeight <= canvasWidth) ? Math.floor(canvasHeight / 20) : Math.floor(canvasWidth / 20);
+    return (canvasHeight <= canvasWidth) ? Math.floor(canvasHeight / tileViewRange) : Math.floor(canvasWidth / tileViewRange);
 };
 const generateTileAtlas = (tileAtlas: OffscreenCanvas, tileSize: number, tileTypes: string[]): AtlasData => {
     const atlasData: AtlasData = {};
