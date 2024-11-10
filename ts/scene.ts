@@ -1,12 +1,12 @@
-import { MainCanvas } from "./canvas.js";
-import { KeyboardControls, MouseControls } from "./controls.js";
-import { AtlasData } from "./tileAtlas.js";
-import { PerlinNoise } from "./perlinNoise.js";
-import { Camera } from "./camera.js";
+import { MainCanvas } from './canvas.js';
+import { KeyboardControls, MouseControls } from './controls.js';
+import { Tile, AtlasData, TerrainData } from './tileAtlas.js';
+import { PerlinNoise } from './perlinNoise.js';
+import { Camera } from './camera.js';
 
 class Scene {
     private camera: Camera;
-    private backgroundData: number[][] = [];
+    private backgroundData: TerrainData[][];
     constructor(
         private mainCanvas: MainCanvas, private sound: AudioContext,
         private keyboard: KeyboardControls, private mouse: MouseControls,
@@ -20,22 +20,26 @@ class Scene {
         this.backgroundData = this.generateBackground(mapWidth, mapHeight);
     }
 
-    private generateBackground(width: number, height: number): number[][] {
-        const backgroundData = new Array(height).fill(0).map(() => new Array(width).fill(0));
-        const perlinNoise = new PerlinNoise(1234567890);
+    private generateBackground(width: number, height: number): TerrainData[][] {
+        const backgroundData = new Array(height).fill(0).map(
+            () => new Array(width).fill(0).map(() => ({terrainNumber: 0, sampleX: 0, sampleY: 0}))
+        );
+        const perlinNoise = new PerlinNoise(13116);
         let maxValue = 0;
         let minValue = 1;
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const noise = perlinNoise.generateNoise(x, y, 10, 1, 0.5, 2, true);
-                backgroundData[y][x] = noise;
+                backgroundData[y][x].terrainNumber = noise;
                 maxValue = Math.max(maxValue, noise);
                 minValue = Math.min(minValue, noise);
             }
         }
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                backgroundData[y][x] = (backgroundData[y][x] - minValue) / (maxValue - minValue);
+                backgroundData[y][x].terrainNumber = (backgroundData[y][x].terrainNumber - minValue) / (maxValue - minValue);
+                backgroundData[y][x].sampleX = Math.random() * this.tileSize * 2;
+                backgroundData[y][x].sampleY = Math.random() * this.tileSize * 2;
             }
         }
         return backgroundData;
@@ -56,8 +60,8 @@ class Scene {
         const viewport = this.camera.getViewport();
         const left = Math.floor(viewport.left / this.tileSize);
         const top = Math.floor(viewport.top / this.tileSize);
-        const right = Math.ceil(viewport.right / this.tileSize);
-        const bottom = Math.ceil(viewport.bottom / this.tileSize);
+        const right = Math.floor(viewport.right / this.tileSize);
+        const bottom = Math.floor(viewport.bottom / this.tileSize);
         const verticalLimit = Math.min(bottom, this.backgroundData.length);
         const horizontalLimit = Math.min(right, this.backgroundData[0].length);
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -65,16 +69,14 @@ class Scene {
             if (this.backgroundData[sy] === undefined) { continue; }
             for (let sx = left, dx = 0; sx < horizontalLimit; sx++, dx++) {
                 if (this.backgroundData[sy][sx] === undefined) { continue; }
-                const sampleX = Math.random() * this.tileSize * 2;
-                const sampleY = Math.random() * this.tileSize * 2;
                 let terrainType = '';
-                if (this.backgroundData[sy][sx] <= 0.35) { terrainType = 'water'; }
-                else if (this.backgroundData[sy][sx] <= 0.65) { terrainType = 'grass'; } 
-                else if (this.backgroundData[sy][sx] <= 1.0) { terrainType = 'mountain'; }
+                if (this.backgroundData[sy][sx].terrainNumber <= 0.35) { terrainType = 'water'; }
+                else if (this.backgroundData[sy][sx].terrainNumber <= 0.65) { terrainType = 'grass'; } 
+                else if (this.backgroundData[sy][sx].terrainNumber <= 1.0) { terrainType = 'mountain'; }
                 context.drawImage(
                     this.tileAtlas,
-                    this.atlasData[terrainType].x + sampleX,
-                    this.atlasData[terrainType].y + sampleY,
+                    this.atlasData[terrainType].x + this.backgroundData[sy][sx].sampleX,
+                    this.atlasData[terrainType].y + this.backgroundData[sy][sx].sampleY,
                     this.tileSize, this.tileSize,
                     dx * this.tileSize, dy * this.tileSize,
                     this.tileSize, this.tileSize

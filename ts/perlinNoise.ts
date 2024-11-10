@@ -1,4 +1,4 @@
-import { XorShift, LCG } from "./seedAlgorithms.js";
+import { XorShift, LCG } from './seedAlgorithms.js';
 
 class PerlinNoise {
     private permutation: number[];

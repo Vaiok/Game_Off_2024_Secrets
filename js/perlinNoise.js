@@ -1,4 +1,4 @@
-import { XorShift } from "./seedAlgorithms.js";
+import { XorShift } from './seedAlgorithms.js';
 class PerlinNoise {
     constructor(seed) { this.permutation = this.generateRandomPermutation(seed); }
     generateRandomPermutation(seed) {
