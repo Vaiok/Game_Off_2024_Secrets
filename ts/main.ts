@@ -1,6 +1,6 @@
 import { VisibleCanvas, MainCanvas } from './canvas.js';
 import { KeyboardControls, MouseControls } from './controls.js';
-import { Tile, getTileSize, generateTileAtlas } from './tileAtlas.js'
+import { TileAtlas } from './tileAtlas.js'
 import { Scene } from './scene.js';
 import { OpeningScreen } from './openingScreen.js';
 
@@ -28,17 +28,16 @@ const setupProgram = (): ProgramData => {
 };
 
 const setupGame = (data: ProgramData): void => {
-    const mapSize = { width: 200, height: 200 };
+    const { mainCanvas, sound, keyboard, mouse } = data;
+    const mapWidth = 200;
+    const mapHeight = 200;
     const tileViewRange = 20;
-    const tileSize = getTileSize(data.mainCanvas, tileViewRange);
-    const tileTypes: Tile[] = ['water', 'grass', 'mountain'];
-    const atlasDimensions = tileSize * 3 * Math.ceil(Math.sqrt(tileTypes.length));
-    const tileAtlas = new OffscreenCanvas(atlasDimensions, atlasDimensions);
-    const atlasData = generateTileAtlas(tileAtlas, tileSize, tileTypes);
+    const tileAtlas = new TileAtlas(mainCanvas, tileViewRange);
+    const { atlas, samples, tileSize } = tileAtlas.generateTileAtlas();
     data.scenes['start'] = new Scene(
-        data.mainCanvas, data.sound, data.keyboard, data.mouse,
-        tileAtlas, atlasData, tileSize,
-        mapSize.width, mapSize.height, tileViewRange
+        mainCanvas, sound, keyboard, mouse,
+        atlas, samples, tileSize,
+        mapWidth, mapHeight, tileViewRange
     );
     data.currentScene = 'start';
 };

@@ -1,6 +1,6 @@
 import { MainCanvas } from './canvas.js';
 import { KeyboardControls, MouseControls } from './controls.js';
-import { Tile, AtlasData, TerrainData } from './tileAtlas.js';
+import { Tile, AtlasData, TerrainData, SampleLocations } from './tileAtlas.js';
 import { PerlinNoise } from './perlinNoise.js';
 import { Camera } from './camera.js';
 
@@ -10,7 +10,7 @@ class Scene {
     constructor(
         private mainCanvas: MainCanvas, private sound: AudioContext,
         private keyboard: KeyboardControls, private mouse: MouseControls,
-        private tileAtlas: OffscreenCanvas, private atlasData: AtlasData, private tileSize: number,
+        private atlas: OffscreenCanvas, private samples: SampleLocations, private tileSize: number,
         mapWidth: number, mapHeight: number, tileViewRange: number
     ) {
         const target = { x: mapWidth * this.tileSize / 2, y: mapHeight * this.tileSize / 2 };
@@ -21,14 +21,14 @@ class Scene {
     }
 
     private generateBackground(width: number, height: number): TerrainData[][] {
-        const backgroundData = new Array(height).fill(0).map(
-            () => new Array(width).fill(0).map(() => ({terrainNumber: 0, sampleX: 0, sampleY: 0}))
-        );
+        const backgroundData: TerrainData[][] = [];
         const perlinNoise = new PerlinNoise(13116);
         let maxValue = 0;
         let minValue = 1;
         for (let y = 0; y < height; y++) {
+            backgroundData[y] = [];
             for (let x = 0; x < width; x++) {
+                backgroundData[y][x] = { terrainNumber: 0, sampleX: 0, sampleY: 0 };
                 const noise = perlinNoise.generateNoise(x, y, 10, 1, 0.5, 2, true);
                 backgroundData[y][x].terrainNumber = noise;
                 maxValue = Math.max(maxValue, noise);
@@ -74,9 +74,9 @@ class Scene {
                 else if (this.backgroundData[sy][sx].terrainNumber <= 0.65) { terrainType = 'grass'; } 
                 else if (this.backgroundData[sy][sx].terrainNumber <= 1.0) { terrainType = 'mountain'; }
                 context.drawImage(
-                    this.tileAtlas,
-                    this.atlasData[terrainType].x + this.backgroundData[sy][sx].sampleX,
-                    this.atlasData[terrainType].y + this.backgroundData[sy][sx].sampleY,
+                    this.atlas,
+                    this.samples[terrainType].x + this.backgroundData[sy][sx].sampleX,
+                    this.samples[terrainType].y + this.backgroundData[sy][sx].sampleY,
                     this.tileSize, this.tileSize,
                     dx * this.tileSize, dy * this.tileSize,
                     this.tileSize, this.tileSize

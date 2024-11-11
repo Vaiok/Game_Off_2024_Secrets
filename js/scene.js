@@ -1,13 +1,13 @@
 import { PerlinNoise } from './perlinNoise.js';
 import { Camera } from './camera.js';
 class Scene {
-    constructor(mainCanvas, sound, keyboard, mouse, tileAtlas, atlasData, tileSize, mapWidth, mapHeight, tileViewRange) {
+    constructor(mainCanvas, sound, keyboard, mouse, atlas, samples, tileSize, mapWidth, mapHeight, tileViewRange) {
         this.mainCanvas = mainCanvas;
         this.sound = sound;
         this.keyboard = keyboard;
         this.mouse = mouse;
-        this.tileAtlas = tileAtlas;
-        this.atlasData = atlasData;
+        this.atlas = atlas;
+        this.samples = samples;
         this.tileSize = tileSize;
         const target = { x: mapWidth * this.tileSize / 2, y: mapHeight * this.tileSize / 2 };
         const cameraWidth = tileViewRange * this.tileSize;
@@ -16,12 +16,14 @@ class Scene {
         this.backgroundData = this.generateBackground(mapWidth, mapHeight);
     }
     generateBackground(width, height) {
-        const backgroundData = new Array(height).fill(0).map(() => new Array(width).fill(0).map(() => ({ terrainNumber: 0, sampleX: 0, sampleY: 0 })));
+        const backgroundData = [];
         const perlinNoise = new PerlinNoise(13116);
         let maxValue = 0;
         let minValue = 1;
         for (let y = 0; y < height; y++) {
+            backgroundData[y] = [];
             for (let x = 0; x < width; x++) {
+                backgroundData[y][x] = { terrainNumber: 0, sampleX: 0, sampleY: 0 };
                 const noise = perlinNoise.generateNoise(x, y, 10, 1, 0.5, 2, true);
                 backgroundData[y][x].terrainNumber = noise;
                 maxValue = Math.max(maxValue, noise);
@@ -82,7 +84,7 @@ class Scene {
                 else if (this.backgroundData[sy][sx].terrainNumber <= 1.0) {
                     terrainType = 'mountain';
                 }
-                context.drawImage(this.tileAtlas, this.atlasData[terrainType].x + this.backgroundData[sy][sx].sampleX, this.atlasData[terrainType].y + this.backgroundData[sy][sx].sampleY, this.tileSize, this.tileSize, dx * this.tileSize, dy * this.tileSize, this.tileSize, this.tileSize);
+                context.drawImage(this.atlas, this.samples[terrainType].x + this.backgroundData[sy][sx].sampleX, this.samples[terrainType].y + this.backgroundData[sy][sx].sampleY, this.tileSize, this.tileSize, dx * this.tileSize, dy * this.tileSize, this.tileSize, this.tileSize);
             }
         }
     }
